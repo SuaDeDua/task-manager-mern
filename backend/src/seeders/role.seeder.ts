@@ -1,6 +1,6 @@
-import "dotenv/config"
+import "dotenv/config";
 import mongoose from "mongoose";
-import connectDatabases from "../config/databases.config";
+import connectDatabase from "../config/database.config";
 import RoleModel from "../models/roles-permission.model";
 import { RolePermissions } from "../utils/role-permission";
 
@@ -8,7 +8,7 @@ const seedRoles = async () => {
   console.log("Seeding roles started...");
 
   try {
-    await connectDatabases();
+    await connectDatabase();
 
     const session = await mongoose.startSession();
     session.startTransaction();

@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 import { config } from "./app.config"
 
-const connectDatabases = async() =>{
+const connectDatabase = async() =>{
   try{
     await mongoose.connect(config.MONGO_URI)
     console.log("Connected to Mongo database")
@@ -11,4 +11,4 @@ const connectDatabases = async() =>{
   }
 }
 
-export default connectDatabases
+export default connectDatabase

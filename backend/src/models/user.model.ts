@@ -58,7 +58,7 @@ const userSchema = new Schema<UserDocument>(
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     if (this.password) {
-      this.password = await hashValue(this.password, 10);
+      this.password = await hashValue(this.password);
     }
   }
   next();

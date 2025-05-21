@@ -2,48 +2,49 @@ import mongoose, { Document, Schema } from "mongoose";
 import { ProviderEnum, ProviderEnumType } from "../enums/account-provider.enum";
 
 export interface AccountDocument extends Document {
-  provider: ProviderEnumType
+  provider: ProviderEnumType;
   providerId: string; // Store the email, googleId, facebookId as the providerId
-  userId: mongoose.Types.ObjectId
-  refreshToken: string | null
-  tokenExpiry: Date | null
-  createAt: Date
+  userId: mongoose.Types.ObjectId;
+  refreshToken: string | null;
+  tokenExpiry: Date | null;
+  createdAt: Date;
 }
 
-const accountSchema = new Schema<AccountDocument>({
-  userId:{
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const accountSchema = new Schema<AccountDocument>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    provider: {
+      type: String,
+      enum: Object.values(ProviderEnum),
+      required: true,
+    },
+    providerId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    refreshToken: {
+      type: String,
+      default: null,
+    },
+    tokenExpiry: {
+      type: Date,
+      default: null,
+    },
   },
-  provider:{
-    type: String,
-    enum: Object.values(ProviderEnum),
-    required: true,
-  },
-  providerId:{
-    type: String,
-    required: true,
-    unique: true
-  },
-  refreshToken:{
-    type: String,
-    default: null
-  },
-  tokenExpiry:{
-    type: String,
-    default: null
-  },
-},
   {
     timestamps: true,
     toJSON: {
-      transform(doc, ret){
-        delete ret.refreshToken
-      }
-    }
+      transform(doc, ret) {
+        delete ret.refreshToken;
+      },
+    },
   }
-)
+);
 
-const AccountModel = mongoose.model<AccountDocument>("Account", accountSchema)
-export default AccountModel
+const AccountModel = mongoose.model<AccountDocument>("Account", accountSchema);
+export default AccountModel;

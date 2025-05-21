@@ -5,7 +5,10 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { config } from "./app.config";
 import { NotFoundException } from "../utils/appError";
 import { ProviderEnum } from "../enums/account-provider.enum";
-import { loginOrCreateAccountService, verifyUserService } from "../services/auth.service";
+import {
+  loginOrCreateAccountService,
+  verifyUserService,
+} from "../services/auth.service";
 
 passport.use(
   new GoogleStrategy(
@@ -54,7 +57,7 @@ passport.use(
         });
         return done(null, user);
       } catch (error: any) {
-        return done(error, false,  { message: error?.message})
+        return done(error, false, { message: error?.message });
       }
     }
   )
