@@ -146,6 +146,7 @@ export const registerUserService = async (body: {
     await session.commitTransaction();
     session.endSession();
     console.log("End Session...");
+
     return {
       userId: user._id,
       workspaceId: workspace._id,

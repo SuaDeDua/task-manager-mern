@@ -4,7 +4,6 @@ const httpConfig = () => ({
   CREATED: 201,
   ACCEPTED: 202,
   NO_CONTENT: 204,
-
   // Client error responses
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,

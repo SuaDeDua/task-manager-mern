@@ -29,10 +29,7 @@ const userSchema = new Schema<UserDocument>(
       trim: true,
       lowercase: true,
     },
-    password: {
-      type: String,
-      select: true,
-    },
+    password: { type: String, select: true },
     profilePicture: {
       type: String,
       default: null,
@@ -41,14 +38,8 @@ const userSchema = new Schema<UserDocument>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Workspace",
     },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    lastLogin: {
-      type: Date,
-      default: null,
-    },
+    isActive: { type: Boolean, default: true },
+    lastLogin: { type: Date, default: null },
   },
   {
     timestamps: true,

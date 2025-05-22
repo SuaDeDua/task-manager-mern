@@ -27,14 +27,8 @@ const accountSchema = new Schema<AccountDocument>(
       required: true,
       unique: true,
     },
-    refreshToken: {
-      type: String,
-      default: null,
-    },
-    tokenExpiry: {
-      type: Date,
-      default: null,
-    },
+    refreshToken: { type: String, default: null },
+    tokenExpiry: { type: Date, default: null },
   },
   {
     timestamps: true,

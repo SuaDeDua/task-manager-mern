@@ -3,8 +3,8 @@ import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import { config } from "../config/app.config";
 import { registerSchema } from "../validation/auth.validation";
 import { HTTPSTATUS } from "../config/http.config";
-import passport from "passport";
 import { registerUserService } from "../services/auth.service";
+import passport from "passport";
 
 export const googleLoginCallback = asyncHandler(
   async (req: Request, res: Response) => {
@@ -31,7 +31,7 @@ export const registerUserController = asyncHandler(
     await registerUserService(body);
 
     return res.status(HTTPSTATUS.CREATED).json({
-      message: "User registered successfully",
+      message: "User created successfully",
     });
   }
 );
@@ -66,6 +66,24 @@ export const loginController = asyncHandler(
           });
         });
       }
-    )(res, req, next);
+    )(req, res, next);
+  }
+);
+
+export const logOutController = asyncHandler(
+  async (req: Request, res: Response) => {
+    req.logout((err) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res
+          .status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
+          .json({ error: "Failed to log out" });
+      }
+    });
+
+    req.session = null;
+    return res
+      .status(HTTPSTATUS.OK)
+      .json({ message: "Logged out successfully" });
   }
 );
