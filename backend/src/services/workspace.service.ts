@@ -67,3 +67,48 @@ export const getAllWorkspacesUserIsMemberService = async (userId: string) => {
 
   return { workspaces };
 };
+
+// Get workspace by id
+
+export const getWorkspaceByIdService = async (workspaceId: string) => {
+  const workspace = await WorkspaceModel.findById(workspaceId);
+
+  if (!workspace) {
+    throw new NotFoundException("Workspace not found");
+  }
+
+  const members = await MemberModel.find({
+    workspaceId,
+  }).populate("role");
+
+  const workspaceWithMembers = {
+    ...workspace.toObject(),
+    members,
+  };
+
+  return {
+    workspace: workspaceWithMembers,
+  };
+};
+
+// Get all members in workspace
+
+export const getWorkspaceMembersService = async (workspaceId: string) => {
+  // Fetch all members of the workspace
+
+  const members = await MemberModel.find({
+    workspaceId,
+  })
+    .populate("userId", "name email profilePicture -password")
+    .populate("role", "name");
+
+  const roles = await RoleModel.find({}, { name: 1, _id: 1 })
+    .select("-permission")
+    .lean();
+
+  return {
+    members,
+    roles,
+  };
+};
+

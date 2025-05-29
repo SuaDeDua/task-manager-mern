@@ -1,8 +1,19 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
-import { createWorkspaceSchema } from "../validation/workspace.validation";
+import {
+  createWorkspaceSchema,
+  workspaceIdSchema,
+} from "../validation/workspace.validation";
 import { HTTPSTATUS } from "../config/http.config";
-import { createWorkspaceService, getAllWorkspacesUserIsMemberService } from "../services/workspace.service";
+import {
+  createWorkspaceService,
+  getAllWorkspacesUserIsMemberService,
+  getWorkspaceByIdService,
+  getWorkspaceMembersService,
+} from "../services/workspace.service";
+import { getMemberRoleInWorkspace } from "../services/member.service";
+import { Permissions } from "../enums/role.enum";
+import { roleGuard } from "../utils/roleGuard";
 
 export const createWorkspaceController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -21,14 +32,51 @@ export const createWorkspaceController = asyncHandler(
 // Controller: Get all workspace the user is part of
 
 export const getAllWorkspacesUserIsMemberController = asyncHandler(
-  async (req: Request, res: Response) =>{
-    const userId = req.user?._id
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
 
-    const {workspaces} = await getAllWorkspacesUserIsMemberService(userId)
+    const { workspaces } = await getAllWorkspacesUserIsMemberService(userId);
 
     return res.status(HTTPSTATUS.OK).json({
       message: "User workspaces fetched successfully",
-      workspaces
-    })
+      workspaces,
+    });
   }
-)
+);
+
+// Controller: Get workspace by id
+
+export const getWorkspaceByIdController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+
+    await getMemberRoleInWorkspace(userId, workspaceId);
+
+    const { workspace } = await getWorkspaceByIdService(workspaceId);
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Workspace fetched successfully",
+      workspace,
+    });
+  }
+);
+
+// Get all members in workspace 
+
+export const getWorkspaceMembersController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+
+    roleGuard(role, [Permissions.VIEW_ONLY]);
+
+    const { members, roles } = await getWorkspaceMembersService(workspaceId);
+    return res.status(HTTPSTATUS.OK).json({
+      members,
+      roles,
+    });
+  }
+);
