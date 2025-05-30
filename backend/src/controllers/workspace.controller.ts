@@ -1,13 +1,16 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import {
+  changeRoleSchema,
   createWorkspaceSchema,
   workspaceIdSchema,
 } from "../validation/workspace.validation";
 import { HTTPSTATUS } from "../config/http.config";
 import {
+  changeMemberRoleService,
   createWorkspaceService,
   getAllWorkspacesUserIsMemberService,
+  getWorkspaceAnalyticsService,
   getWorkspaceByIdService,
   getWorkspaceMembersService,
 } from "../services/workspace.service";
@@ -62,7 +65,7 @@ export const getWorkspaceByIdController = asyncHandler(
   }
 );
 
-// Get all members in workspace 
+// Get all members in workspace
 
 export const getWorkspaceMembersController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -77,6 +80,50 @@ export const getWorkspaceMembersController = asyncHandler(
     return res.status(HTTPSTATUS.OK).json({
       members,
       roles,
+    });
+  }
+);
+
+// Get workspace analytics
+
+export const getWorkspaceAnalyticsController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+    roleGuard(role, [Permissions.VIEW_ONLY]);
+
+    const { analytics } = await getWorkspaceAnalyticsService(workspaceId);
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Workspace members retrieved successfully",
+      analytics,
+    });
+  }
+);
+
+// Change workspace member role
+
+export const changeWorkspaceMemberRoleController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const {memberId, roleId} = changeRoleSchema.parse(req.body)
+
+    const userId = req.user?._id;
+
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+    roleGuard(role, [Permissions.CHANGE_MEMBER_ROLE]);
+
+    const { member } = await changeMemberRoleService(
+      workspaceId,
+      memberId,
+      roleId
+    );
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Member role changed successfully",
+      member
     });
   }
 );
