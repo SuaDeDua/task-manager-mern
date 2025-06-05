@@ -173,3 +173,25 @@ export const changeMemberRoleService = async (
     member,
   };
 };
+
+export const updateWorkspaceByIdService = async (
+  workspaceId: string,
+  name: string,
+  description?: string
+) => {
+  const workspace = await WorkspaceModel.findById(workspaceId);
+  if (!workspace) {
+    throw new NotFoundException("Workspace not found");
+  }
+
+  // Update the workspace details
+
+  workspace.name = name || workspace.name;
+  workspace.description = description || workspace.description;
+
+  await workspace.save();
+
+  return {
+    workspace,
+  };
+};
