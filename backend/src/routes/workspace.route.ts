@@ -6,7 +6,8 @@ import {
   getWorkspaceByIdController,
   getWorkspaceMembersController,
   changeWorkspaceMemberRoleController,
-  updateWorkspaceByIdController
+  updateWorkspaceByIdController,
+  deleteWorkspaceByIdController
 } from "../controllers/workspace.controller";
 
 const workspaceRoutes = Router();
@@ -16,6 +17,8 @@ workspaceRoutes.post("/create/new", createWorkspaceController);
 workspaceRoutes.put("/update/:id", updateWorkspaceByIdController)
 
 workspaceRoutes.put("/change/member/role/:id", changeWorkspaceMemberRoleController);
+
+workspaceRoutes.delete("/delete/:id", deleteWorkspaceByIdController)
 
 workspaceRoutes.get("/all", getAllWorkspacesUserIsMemberController);
 
