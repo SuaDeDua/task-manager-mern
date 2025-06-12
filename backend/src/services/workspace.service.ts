@@ -251,3 +251,64 @@ export const deleteWorkspaceService = async (
     throw error
   }
 };
+
+export const leaveWorkspaceService = async (
+  workspaceId: string,
+  userId: string
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const workspace = await WorkspaceModel.findById(workspaceId).session(session);
+    if (!workspace) {
+      throw new NotFoundException("Workspace not found");
+    }
+
+    const user = await UserModel.findById(userId).session(session);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    // Kiểm tra xem người dùng có phải là chủ sở hữu của workspace không
+    if (workspace.owner.toString() === userId) {
+      // Tùy chọn 1: Ném lỗi nếu chủ sở hữu cố gắng "leave" (rời đi)
+      throw new BadRequestException("Owner cannot leave the workspace. Consider deleting it instead.");
+      // Tùy chọn 2: Nếu bạn muốn chủ sở hữu có thể chuyển giao quyền sở hữu trước khi rời đi, logic sẽ phức tạp hơn.
+      // Tùy chọn 3: Nếu "leave" của chủ sở hữu có nghĩa là "delete", bạn có thể gọi deleteWorkspaceService ở đây.
+    }
+
+    // Tìm và xóa bản ghi thành viên của người dùng trong workspace này
+    const deletedMember = await MemberModel.findOneAndDelete({
+      workspaceId: workspace._id,
+      userId: user._id
+    }).session(session);
+
+    if (!deletedMember) {
+      // Người dùng không phải là thành viên của workspace này hoặc đã rời đi rồi
+      throw new BadRequestException("You are not a member of this workspace.");
+    }
+
+    // Cập nhật currentWorkspace của người dùng nếu họ đang ở trong workspace vừa rời đi
+    if (user.currentWorkspace?.equals(workspaceId)) {
+      // Tìm một workspace khác mà người dùng vẫn là thành viên
+      const anotherMemberWorkspace = await MemberModel.findOne({ userId: user._id }).session(session);
+
+      // Cập nhật currentWorkspace: gán cho workspace mới tìm được, hoặc null nếu không còn workspace nào
+      user.currentWorkspace = anotherMemberWorkspace ? anotherMemberWorkspace.workspaceId : null;
+      await user.save({ session });
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      message: "Successfully left the workspace.",
+      currentWorkspace: user.currentWorkspace
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};

@@ -1,16 +1,17 @@
 export const Roles = {
   OWNER: "OWNER",
   ADMIN: "ADMIN",
-  MEMBER: "MEMBER"
-} as const
+  MEMBER: "MEMBER",
+} as const;
 
-export type RoleType = keyof typeof Roles
+export type RoleType = keyof typeof Roles;
 
 export const Permissions = {
   CREATE_WORKSPACE: "CREATE_WORKSPACE",
   DELETE_WORKSPACE: "DELETE_WORKSPACE",
   EDIT_WORKSPACE: "EDIT_WORKSPACE",
   MANAGE_WORKSPACE_SETTINGS: "MANAGE_WORKSPACE_SETTINGS",
+  LEAVE_WORKSPACE: "LEAVE_WORKSPACE",
 
   ADD_MEMBER: "ADD_MEMBER",
   CHANGE_MEMBER_ROLE: "CHANGE_MEMBER_ROLE",

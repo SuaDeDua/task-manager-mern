@@ -15,6 +15,7 @@ import {
   getWorkspaceAnalyticsService,
   getWorkspaceByIdService,
   getWorkspaceMembersService,
+  leaveWorkspaceService,
   updateWorkspaceByIdService,
 } from "../services/workspace.service";
 import { getMemberRoleInWorkspace } from "../services/member.service";
@@ -172,6 +173,26 @@ export const deleteWorkspaceByIdController = asyncHandler(
 
     return res.status(HTTPSTATUS.OK).json({
       message: "Workspace deleted successfully",
+      currentWorkspace,
+    });
+  }
+);
+
+export const leaveWorkspaceByIdController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+
+    const userId = req.user?._id;
+
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+    roleGuard(role, [Permissions.LEAVE_WORKSPACE]);
+
+    const { currentWorkspace } = await leaveWorkspaceService(
+      workspaceId,
+      userId
+    );
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Successfully left the workspace.",
       currentWorkspace,
     });
   }
