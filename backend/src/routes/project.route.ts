@@ -1,15 +1,20 @@
 import { Router } from "express";
 import {
   createProjectController,
+  deleteProjectByIdController,
   getAllProjectsInWorkspaceController,
   getProjectAnalyticsController,
   getProjectByIdController,
+  updateProjectByIdController,
 } from "../controllers/project.controller";
-import { get } from "http";
 
 const projectRoutes = Router();
 
 projectRoutes.post("/workspace/:workspaceId/create", createProjectController);
+
+projectRoutes.put("/:id/workspace/:workspaceId/update", updateProjectByIdController);
+
+projectRoutes.delete("/:id/workspace/:workspaceId/delete", deleteProjectByIdController);
 
 projectRoutes.get(
   "/workspace/:workspaceId/all",
